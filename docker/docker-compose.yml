@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+
+  go-pdf-conversor-backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    dns:
+      - 8.8.8.8
+    image: go-pdf-conversor-backend:latest
+    container_name: go-pdf-conversor-backend
+    ports:
+      - "8081:8081"
+    networks:
+      - go-pdf-conversor-backend-network
+
+networks:
+  go-pdf-conversor-backend-network: 
+    driver: bridge

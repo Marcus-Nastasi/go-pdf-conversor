@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/Marcus-Nastasi/docx2pdf/service"
+	"github.com/Marcus-Nastasi/docx2pdf/application"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +17,7 @@ func Convert(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, "")
 	}
-	var converter service.Convert = &service.LibreOfficeConverter{}
+	var converter application.Convert = &application.LibreOfficeConverter{}
 	pdfPath, err := converter.ConvertToPdf(docxPath.Path)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{"Error": err.Error()})

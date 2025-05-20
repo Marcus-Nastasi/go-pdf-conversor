@@ -1,4 +1,4 @@
-package service
+package application
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ type LibreOfficeConverter struct{}
 
 func (l LibreOfficeConverter) ConvertToPdf(docxPath string) (string, error) {
 	arg0 := "lowriter"
-	arg1 := "--invisible" //This command is optional, it will help to disable the splash screen of LibreOffice.
+	arg1 := "--invisible" // disable the splash screen of LibreOffice.
 	arg2 := "--convert-to"
 	arg3 := "pdf:writer_pdf_Export"
 	outputDir := filepath.Dir(docxPath)
