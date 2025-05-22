@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"path/filepath"
 	"strings"
 
 	"github.com/Marcus-Nastasi/docx2pdf/application"
@@ -44,16 +43,14 @@ func ConvertUpload(ctx *gin.Context) {
 	// Init converter
 	var converter application.Convert = &application.LibreOfficeConverter{}
 	// Saves, convert the file, than clean tmp dir
-	pdfBytes, err := converter.ConvertFromUpload(fileName, file)
+	pdfBytes, err := converter.ConvertFromUpload(&fileName, &file)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{"Error": err.Error()})
 	}
 	// Define response headers for download
-	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", changeExtension(header.Filename, "pdf")))
+	ctx.Header(
+		"Content-Disposition",
+		fmt.Sprintf("attachment; filename=\"%s\"", converter.ChangeExtension(header.Filename, "pdf")),
+	)
 	ctx.Data(http.StatusOK, "application/pdf", pdfBytes)
-}
-
-// changeExtension changes file extension
-func changeExtension(filename, newExt string) string {
-	return fmt.Sprintf("%s.%s", filename[:len(filename)-len(filepath.Ext(filename))], newExt)
 }
