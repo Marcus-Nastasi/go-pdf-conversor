@@ -7,6 +7,7 @@ import (
 
 func main() {
 	server := gin.Default()
-	server.POST("/convert", controller.Convert)
+	server.POST("/convert-on-machine", controller.ConvertOnMachine)
+	server.POST("/convert-upload", controller.ConvertUpload)
 	server.Run(":8081")
 }

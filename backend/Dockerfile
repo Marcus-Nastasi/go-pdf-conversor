@@ -1,9 +1,6 @@
 # 1: build
 FROM golang:1.24.2 AS builder
 
-# Instala git e outras dependências básicas
-RUN apk update && apk add --no-cache git
-
 # Define workdir
 WORKDIR /app
 
@@ -11,7 +8,7 @@ WORKDIR /app
 COPY go.mod ./
 COPY go.sum ./
 ENV GOPROXY=direct
-RUN go mod download
+RUN go mod tidy
 
 COPY . .
 
@@ -20,6 +17,8 @@ RUN go build -o main .
 
 # 2: final image
 FROM ubuntu:latest
+
+RUN apt update && apt install -y libreoffice-writer libreoffice-core libreoffice-common
 
 WORKDIR /root/
 
