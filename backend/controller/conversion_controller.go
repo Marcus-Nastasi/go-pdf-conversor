@@ -13,6 +13,8 @@ type Path struct {
 	Path string `json:"path"`
 }
 
+var converter application.Convert = &application.LibreOfficeConverter{}
+
 func ConvertOnMachine(ctx *gin.Context) {
 	var docxPath Path
 	err := ctx.BindJSON(&docxPath)
@@ -20,8 +22,7 @@ func ConvertOnMachine(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, "")
 		return
 	}
-	var converter application.Convert = &application.LibreOfficeConverter{}
-	pdfPath, err := converter.LocalConvertToPdf(docxPath.Path)
+	pdfPath, err := converter.LocalConvertToPdf(&docxPath.Path)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{"Error": err.Error()})
 		return
@@ -40,8 +41,6 @@ func ConvertUpload(ctx *gin.Context) {
 	defer file.Close()
 	// Clear blank spaces on name
 	fileName := strings.ReplaceAll(header.Filename, " ", "_")
-	// Init converter
-	var converter application.Convert = &application.LibreOfficeConverter{}
 	// Saves, convert the file, than clean tmp dir
 	pdfBytes, err := converter.ConvertFromUpload(&fileName, &file)
 	if err != nil {

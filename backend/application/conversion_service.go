@@ -10,20 +10,20 @@ import (
 )
 
 type Convert interface {
-	LocalConvertToPdf(docxPath string) (string, error)
+	LocalConvertToPdf(docxPath *string) (string, error)
 	ConvertFromUpload(fileName *string, file *multipart.File) ([]byte, error)
 	ChangeExtension(filename, newExt string) string
 }
 
 type LibreOfficeConverter struct{}
 
-func (l LibreOfficeConverter) LocalConvertToPdf(docxPath string) (string, error) {
+func (l *LibreOfficeConverter) LocalConvertToPdf(docxPath *string) (string, error) {
 	arg0 := "lowriter"
 	arg1 := "--invisible" // disable the splash screen of LibreOffice.
 	arg2 := "--convert-to"
 	arg3 := "pdf:writer_pdf_Export"
-	outputDir := filepath.Dir(docxPath)
-	_, err := exec.Command(arg0, arg1, arg2, arg3, "--outdir", outputDir, docxPath).Output()
+	outputDir := filepath.Dir(*docxPath)
+	_, err := exec.Command(arg0, arg1, arg2, arg3, "--outdir", outputDir, *docxPath).Output()
 	if err != nil {
 		fmt.Println("[ERROR]: ", err.Error())
 		return "", err
@@ -31,7 +31,7 @@ func (l LibreOfficeConverter) LocalConvertToPdf(docxPath string) (string, error)
 	return outputDir, nil
 }
 
-func (l LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipart.File) ([]byte, error) {
+func (l *LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipart.File) ([]byte, error) {
 	// Creates temporary file
 	tempDir := os.TempDir()
 	tempInputFile := filepath.Join(tempDir, "upload_"+*fileName)
@@ -44,7 +44,7 @@ func (l LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipar
 	// Copies all the original file content to the temporary file created
 	io.Copy(outFile, *file)
 	// Convert file with LibreOffice
-	convertedDir, err := l.LocalConvertToPdf(tempInputFile)
+	convertedDir, err := l.LocalConvertToPdf(&tempInputFile)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +62,6 @@ func (l LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipar
 }
 
 // Changes the file extension
-func (l LibreOfficeConverter) ChangeExtension(filename, newExt string) string {
+func (l *LibreOfficeConverter) ChangeExtension(filename, newExt string) string {
 	return fmt.Sprintf("%s.%s", filename[:len(filename)-len(filepath.Ext(filename))], newExt)
 }
