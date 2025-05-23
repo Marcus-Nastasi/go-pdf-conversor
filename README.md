@@ -24,7 +24,7 @@ Follow the steps below to set up and run the project on your local machine.
 1. **Clone this repository.**
    ```
    https://github.com/Marcus-Nastasi/go-pdf-conversor.git
-
+   
 2. **Run the app, or run the docker-compose.yml file on "docker" directory:**
     ```bash
     go run main.go
@@ -37,6 +37,9 @@ Follow the steps below to set up and run the project on your local machine.
     ```bash
     # get:
     http://localhost:8081/status
+
+    # get on "/" to access the html
+    http://localhost:8081/
 
     # post with file:
     http://localhost:8081/convert

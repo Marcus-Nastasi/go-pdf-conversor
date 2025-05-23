@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert PDF</title>
+  <style>
+    #drop_zone {
+      border: 2px dashed black;
+      width: 200px;
+      height: 100px;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    #drop_zone.dragover {
+      border: 2px dashed green;
+      background-color: #e6ffe6;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <form id="form_convert" enctype="multipart/form-data" action="/convert" method="post">
+      <div
+        id="drop_zone"
+        ondragover="dragOverHandler(event);"
+        ondragleave="dragLeaveHandler(event);"
+        ondrop="dropHandler(event);"
+      >
+        <p>Drag one file to this <i>drop zone</i>.</p>
+      </div>
+      <input type="file" name="file" id="file_to_convert" multiple="false">
+      <button id="convert_button" type="submit">Convert</button>
+    </form>
+  </main>
+  <script>
+    function dragOverHandler(ev) {
+      ev.preventDefault();
+      ev.currentTarget.classList.add('dragover');
+    }
+
+    function dragLeaveHandler(ev) {
+      ev.preventDefault();
+      ev.currentTarget.classList.remove('dragover');
+    }
+
+    function dropHandler(ev) {
+      ev.preventDefault();
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(ev.dataTransfer.files[0]);
+      document.getElementById('file_to_convert').files = dataTransfer.files;
+      dragLeaveHandler(ev);
+    }
+  </script>
+</body>
+</html>

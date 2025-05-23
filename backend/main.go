@@ -13,6 +13,10 @@ func main() {
 	server.GET("/status", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, map[string]string{"status": "all clear"})
 	})
+	server.LoadHTMLFiles("../frontend/index.html")
+	server.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(200, "index.html", gin.H{})
+	})
 	server.POST("/convert", controller.ConvertUpload)
 	server.Run(":8081")
 }
