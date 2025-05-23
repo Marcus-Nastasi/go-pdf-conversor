@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type Converter interface {
@@ -35,7 +37,8 @@ func (l *LibreOfficeConverter) LocalConvertToPdf(docxPath *string) (string, erro
 func (l *LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipart.File) ([]byte, error) {
 	// Creates temporary file
 	tempDir := os.TempDir()
-	tempInputFile := filepath.Join(tempDir, "upload_"+*fileName)
+	newUuid := uuid.New()
+	tempInputFile := filepath.Join(tempDir, "upload_" + newUuid.String() + "_" + *fileName)
 	// Do the upload of original file on tmp dir
 	outFile, err := os.Create(tempInputFile)
 	if err != nil {
@@ -50,7 +53,7 @@ func (l *LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipa
 		return nil, err
 	}
 	ext := "pdf"
-	uploadFileName := "upload_" + *fileName
+	uploadFileName := "upload_" + newUuid.String() + "_" + *fileName
 	// Define the generated pdf path
 	outputPDF := filepath.Join(convertedDir, l.ChangeExtension(&uploadFileName, &ext))
 	// Reads the pdf
@@ -66,5 +69,5 @@ func (l *LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipa
 
 // Changes the file extension
 func (l *LibreOfficeConverter) ChangeExtension(filename, newExt *string) string {
-	return strings.Replace(*filename, filepath.Ext(*filename), "."+*newExt, 1)
+	return strings.Replace(*filename, filepath.Ext(*filename), "." + *newExt, 1)
 }
