@@ -7,12 +7,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
-type Convert interface {
+type Converter interface {
 	LocalConvertToPdf(docxPath *string) (string, error)
 	ConvertFromUpload(fileName *string, file *multipart.File) ([]byte, error)
-	ChangeExtension(filename, newExt string) string
+	ChangeExtension(filename, newExt *string) string
 }
 
 type LibreOfficeConverter struct{}
@@ -25,7 +26,7 @@ func (l *LibreOfficeConverter) LocalConvertToPdf(docxPath *string) (string, erro
 	outputDir := filepath.Dir(*docxPath)
 	_, err := exec.Command(arg0, arg1, arg2, arg3, "--outdir", outputDir, *docxPath).Output()
 	if err != nil {
-		fmt.Println("[ERROR]: ", err.Error())
+		fmt.Printf("[ERROR]: %s\n", err.Error())
 		return "", err
 	}
 	return outputDir, nil
@@ -48,8 +49,10 @@ func (l *LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipa
 	if err != nil {
 		return nil, err
 	}
+	ext := "pdf"
+	uploadFileName := "upload_" + *fileName
 	// Define the generated pdf path
-	outputPDF := filepath.Join(convertedDir, l.ChangeExtension("upload_"+*fileName, "pdf"))
+	outputPDF := filepath.Join(convertedDir, l.ChangeExtension(&uploadFileName, &ext))
 	// Reads the pdf
 	pdfBytes, err := os.ReadFile(outputPDF)
 	if err != nil {
@@ -62,6 +65,6 @@ func (l *LibreOfficeConverter) ConvertFromUpload(fileName *string, file *multipa
 }
 
 // Changes the file extension
-func (l *LibreOfficeConverter) ChangeExtension(filename, newExt string) string {
-	return fmt.Sprintf("%s.%s", filename[:len(filename)-len(filepath.Ext(filename))], newExt)
+func (l *LibreOfficeConverter) ChangeExtension(filename, newExt *string) string {
+	return strings.Replace(*filename, filepath.Ext(*filename), "."+*newExt, 1)
 }

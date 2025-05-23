@@ -13,7 +13,7 @@ type Path struct {
 	Path string `json:"path"`
 }
 
-var converter application.Convert = &application.LibreOfficeConverter{}
+var converter application.Converter = &application.LibreOfficeConverter{}
 
 func ConvertOnMachine(ctx *gin.Context) {
 	var docxPath Path
@@ -46,10 +46,11 @@ func ConvertUpload(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{"Error": err.Error()})
 	}
+	ext := "pdf"
 	// Define response headers for download
 	ctx.Header(
 		"Content-Disposition",
-		fmt.Sprintf("attachment; filename=\"%s\"", converter.ChangeExtension(header.Filename, "pdf")),
+		fmt.Sprintf("attachment; filename=\"%s\"", converter.ChangeExtension(&header.Filename, &ext)),
 	)
 	ctx.Data(http.StatusOK, "application/pdf", pdfBytes)
 }

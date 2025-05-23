@@ -18,7 +18,8 @@ RUN go build -o main .
 # 2: final image
 FROM ubuntu:latest
 
-RUN apt update && apt install -y libreoffice-writer libreoffice-core libreoffice-common
+# Install lowriter package
+RUN apt update && apt install -y libreoffice-writer
 
 WORKDIR /root/
 
