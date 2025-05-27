@@ -13,16 +13,24 @@ type Path struct {
 	Path string `json:"path"`
 }
 
-var converter application.Converter = &application.LibreOfficeConverter{}
+type ConverterController struct {
+	Converter application.Converter
+}
 
-func ConvertOnMachine(ctx *gin.Context) {
+func NewConverterController(c *application.Converter) *ConverterController {
+	return &ConverterController{
+		Converter: *c,
+	}
+}
+
+func (c *ConverterController) ConvertOnMachine(ctx *gin.Context) {
 	var docxPath Path
 	err := ctx.BindJSON(&docxPath)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, "")
 		return
 	}
-	pdfPath, err := converter.LocalConvertToPdf(&docxPath.Path)
+	pdfPath, err := c.Converter.LocalConvertToPdf(&docxPath.Path)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{"Error": err.Error()})
 		return
@@ -30,7 +38,7 @@ func ConvertOnMachine(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, map[string]string{"path": pdfPath})
 }
 
-func ConvertUpload(ctx *gin.Context) {
+func (c *ConverterController) ConvertUpload(ctx *gin.Context) {
 	// Recover file
 	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
@@ -42,7 +50,7 @@ func ConvertUpload(ctx *gin.Context) {
 	// Clear blank spaces on name
 	fileName := strings.ReplaceAll(header.Filename, " ", "_")
 	// Saves, convert the file, than clean tmp dir
-	pdfBytes, err := converter.ConvertFromUpload(&fileName, &file)
+	pdfBytes, err := c.Converter.ConvertFromUpload(&fileName, &file)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{"Error": err.Error()})
 	}
@@ -50,7 +58,7 @@ func ConvertUpload(ctx *gin.Context) {
 	// Define response headers for download
 	ctx.Header(
 		"Content-Disposition",
-		fmt.Sprintf("attachment; filename=\"%s\"", converter.ChangeExtension(&header.Filename, &ext)),
+		fmt.Sprintf("attachment; filename=\"%s\"", c.Converter.ChangeExtension(&header.Filename, &ext)),
 	)
 	ctx.Data(http.StatusOK, "application/pdf", pdfBytes)
 }
