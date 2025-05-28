@@ -43,6 +43,7 @@ func (l *LibreOfficeConverter) LocalConvertToPdf(docxPath *string) (string, erro
 	if err != nil {
 		return "", fmt.Errorf("failed to create user profile dir: %w", err)
 	}
+	defer os.RemoveAll(profileDir)
 	// Build command
 	cmd := exec.Command(
 		"lowriter",
