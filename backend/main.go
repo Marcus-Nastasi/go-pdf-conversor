@@ -11,7 +11,7 @@ import (
 func main() {
 	server := gin.Default()
 
-	var converter application.Converter = &application.LibreOfficeConverter{}
+	var converter application.Converter = application.NewLibreOfficeConverter(20)
 	controller := controller.NewConverterController(&converter)
 
 	server.LoadHTMLFiles("../frontend/index.html")
