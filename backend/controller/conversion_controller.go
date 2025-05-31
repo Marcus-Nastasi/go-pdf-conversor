@@ -81,12 +81,15 @@ func (c *ConverterController) ConvertUpload(ctx *gin.Context) {
 	if len(files) > 1 {
 		var converted_files [][]byte
 		converted_files, err := c.Converter.ConvertMultiple(files)
+
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
+		
 		var buf bytes.Buffer
 		zipWriter := zip.NewWriter(&buf)
+		
 		for i, pdfBytes := range converted_files {
 			originalFileName := files[i].Filename
 			pdfFileName := c.Converter.ChangeExtension(&originalFileName, &ext)
@@ -101,12 +104,14 @@ func (c *ConverterController) ConvertUpload(ctx *gin.Context) {
 				return
 			}
 		}
+		
 		err = zipWriter.Close()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		// // Send zip file
+		
+		// Send zip file
 		ctx.Header("Content-Disposition", "attachment; filename=\"converted_pdfs.zip\"")
 		ctx.Data(http.StatusOK, "application/zip", buf.Bytes())
 		return

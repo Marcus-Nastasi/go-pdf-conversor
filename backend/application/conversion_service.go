@@ -16,7 +16,7 @@ import (
 )
 
 type Converter interface {
-	LocalConvertToPdf(docxPath *string) (string, error)
+	LocalConvertToPdf(path *string) (string, error)
 	ConvertFromUpload(fileName *string, file multipart.File) ([]byte, error)
 	ConvertMultiple(fileHeaders []*multipart.FileHeader) ([][]byte, error)
 	ChangeExtension(filename, newExt *string) string
@@ -102,6 +102,7 @@ func (l *LibreOfficeConverter) ConvertMultiple(fileHeaders []*multipart.FileHead
 	if fileHeaders == nil {
 		return nil, errors.New("no files to convert")
 	}
+
 	var (
 		pdfBytes = make([][]byte, len(fileHeaders))
 		wg       sync.WaitGroup 	// Used to wait for all goroutines to finish
@@ -109,6 +110,7 @@ func (l *LibreOfficeConverter) ConvertMultiple(fileHeaders []*multipart.FileHead
 		errOnce  sync.Once      	// Ensures only one error is captured
 		retErr   error          	// Holds the first error found
 	)
+
 	for i, fileHeader := range fileHeaders {
 		wg.Add(1)
 		go func(i int, fh *multipart.FileHeader) {
@@ -130,10 +132,12 @@ func (l *LibreOfficeConverter) ConvertMultiple(fileHeaders []*multipart.FileHead
 			mu.Unlock()
 		}(i, fileHeader)
 	}
+
 	wg.Wait()
 	if retErr != nil {
 		return nil, retErr
 	}
+
 	return pdfBytes, nil
 }
 
